@@ -58,7 +58,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     int projectileX = 250;
     int projectileY = 0;
-   Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
+    JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
+
+
 
     public myPanel() throws IOException {
 
@@ -77,14 +79,17 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
-         treeImage = new ImageIcon("org/example/playerStatic.png");
+         treeImage = new ImageIcon("org/example/tree.png");
          enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
          projectileImage = new ImageIcon(("org/example/lightningBolt.png")).getImage();
         setFocusable(true);
         addKeyListener(this);
         addMouseListener(this);
 
+        //TreeScoreLabel
 
+        treeScoreLabel.setForeground(Color.WHITE);
+        add(treeScoreLabel);
 
         /*// Mark
         JPanel groundPanel = new JPanel();
@@ -114,21 +119,21 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
 
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
+        g.drawImage(treeImage.getImage(), treeX, treeY,150,150,null); // mark
         g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,this); // mark
-        //g.drawImage(treeImage.getImage(), treeX, treeY,playerWidth,playerHeight,null); // mark
         g.drawImage(enemyImage, enemyX, enemyY,playerWidth,playerHeight,null); // mark
         g.drawImage(projectileImage, projectileX, projectileY,50,50,null); // mark
 
+        Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
 
         Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
 
         if (playerRect.intersects(treeRect)){
             playerX = playerX - playerSpeed;
             treeScore++;
-            System.out.println(treeScore);
+            treeScoreLabel.setText(String.valueOf(treeScore));
             if (treeScore > 5){
-                treeX = 0;
-                treeY = 0;
+                treeRect.setBounds(treeX,treeY,0,0);
             }
         }
 
@@ -247,9 +252,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             //metod som skickar badboll
-            int findPlayerX = (int) playerRect.getX();
-            int findPlayerY = (int) playerRect.getY();
-            projectileY = (findPlayerX + findPlayerY);
+
             repaint();
         }
     });
