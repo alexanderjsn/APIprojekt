@@ -54,6 +54,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     int treeX = 300;
     int treeY = 200;
+    //JPanel blue = new JPanel();
 
 
     public myPanel() throws IOException {
@@ -74,6 +75,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
          treeImage = new ImageIcon("org/example/playerStatic.png");
+         enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
 
         setFocusable(true);
         addKeyListener(this);
@@ -110,7 +112,8 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
         g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,null); // mark
-        g.drawImage(treeImage.getImage(), treeX, treeY,playerWidth,playerHeight,null); // mark
+        //g.drawImage(treeImage.getImage(), treeX, treeY,playerWidth,playerHeight,null); // mark
+        g.drawImage(enemyImage, 250, 0,playerWidth,playerHeight,null); // mark
 
         Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
         Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
@@ -194,15 +197,14 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        JPanel blue = new JPanel();
-        blue.setBackground(Color.CYAN);
+        /*blue.setBackground(Color.CYAN);
         int x = e.getX();
         int y = e.getY();
         blue.setBounds(x,y,100,100);
         setLayout(null);
         add(blue);
         repaint();
-        revalidate();
+        revalidate();*/
 
     }
 
