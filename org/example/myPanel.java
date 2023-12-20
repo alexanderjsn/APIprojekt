@@ -28,10 +28,12 @@ public class myPanel extends JPanel implements KeyListener {
 
 
     // Storlek på frame = skärmens storlek
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    /*Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     // Storlek på höjd/bredd
     double screenRow = screenSize.getWidth();
-    double screenCol = screenSize.getHeight();
+    double screenCol = screenSize.getHeight();*/
+    int screenRow = 500;
+    int screenCol = 500;
 
     // spelare storlek
     int playerWidth = (int) (screenRow * 0.1);
@@ -41,12 +43,10 @@ public class myPanel extends JPanel implements KeyListener {
 
     int playerSpeed = 60;
     int playerJump = 100;
+
+
     int playerX;
     int playerY;
-
-    // positioner på banan
-
-    //högra hörnan (nere)
 
 
 
@@ -54,7 +54,8 @@ public class myPanel extends JPanel implements KeyListener {
      public myPanel() throws IOException {
 
 
-        //Bakgrunder
+
+         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
         BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.png"));
         BufferedImage stormyBackground = ImageIO.read(new File("org/example/stormyLevel.png"));
@@ -63,19 +64,26 @@ public class myPanel extends JPanel implements KeyListener {
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
 
+
+
+
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
 
         setFocusable(true);
         addKeyListener(this);
-        // Mark
+
+
+
+        /*// Mark
         JPanel groundPanel = new JPanel();
         // 30% längd, 20% höjd av skärmen
         double groundRow = screenRow * 0.5;
         double groundCol = screenCol * 0.2;
         groundPanel.setPreferredSize(new Dimension((int) groundRow, (int) groundCol));
-        groundPanel.setBackground(Color.black);
-        add(groundPanel, BorderLayout.SOUTH);
+        add(groundPanel, BorderLayout.SOUTH);*/
+
+
      }
     // gör sen till en väder baserad background
     public void weatherBackground() {
@@ -113,13 +121,30 @@ public class myPanel extends JPanel implements KeyListener {
          int keyCode = e.getKeyCode();
     if(keyCode == KeyEvent.VK_D){
         playerX = playerX + playerSpeed;
-        System.out.println("he");
+        playerImage = new ImageIcon("org/example/playerRun.png").getImage();
         repaint();
     }
+        if(keyCode == KeyEvent.VK_A){
+            playerX = playerX - playerSpeed;
+            playerImage = new ImageIcon("org/example/playerLeft.png").getImage();
+            repaint();
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        if(keyCode == KeyEvent.VK_D){
+            playerX = playerX + playerSpeed;
+            playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
+            repaint();
+        }
+
+        if(keyCode == KeyEvent.VK_A){
+            playerX = playerX - playerSpeed;
+            playerImage = new ImageIcon("org/example/playerStaticLeft.png").getImage();
+            repaint();
+        }
 
     }
 }
