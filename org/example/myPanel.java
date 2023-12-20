@@ -5,13 +5,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Random;
-public class myPanel extends JPanel implements KeyListener {
+public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     Image backgroundImage;
     Image playerImage;
@@ -42,16 +44,20 @@ public class myPanel extends JPanel implements KeyListener {
     // spelare hastighet
 
     int playerSpeed = 60;
-    int playerJump = 100;
+    int playerJump = 60;
 
 
     int playerX;
     int playerY;
+    ImageIcon treeImage;
+
+    int treeScore = 0;
+
+    int treeX = 300;
+    int treeY = 200;
 
 
-
-
-     public myPanel() throws IOException {
+    public myPanel() throws IOException {
 
 
 
@@ -66,12 +72,13 @@ public class myPanel extends JPanel implements KeyListener {
 
 
 
-
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
+         treeImage = new ImageIcon("org/example/playerStatic.png");
 
         setFocusable(true);
         addKeyListener(this);
+        addMouseListener(this);
 
 
 
@@ -104,6 +111,21 @@ public class myPanel extends JPanel implements KeyListener {
 
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
         g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,null); // mark
+        g.drawImage(treeImage.getImage(), treeX, treeY,playerWidth,playerHeight,null); // mark
+
+        Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
+        Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
+
+        if (playerRect.intersects(treeRect)){
+            playerX = playerX - playerSpeed;
+            treeScore++;
+            System.out.println(treeScore);
+            if (treeScore > 5){
+                treeX = 0;
+                treeY = 0;
+            }
+        }
+
         /*g.drawImage(); // spelare
         g.drawImage(); // fiende
         g.drawImage(); // projektil*/
@@ -129,6 +151,23 @@ public class myPanel extends JPanel implements KeyListener {
             playerImage = new ImageIcon("org/example/playerLeft.png").getImage();
             repaint();
         }
+
+        if(keyCode == KeyEvent.VK_S){
+            playerY = playerY + playerJump;
+            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            repaint();
+        }
+        if(keyCode == KeyEvent.VK_W){
+            playerY = playerY - playerJump;
+            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            repaint();
+        }
+        if(keyCode == KeyEvent.VK_B){
+            while (treeScore > 0){
+                System.out.println("building");
+                treeScore--;
+            }
+        }
     }
 
     @Override
@@ -145,6 +184,39 @@ public class myPanel extends JPanel implements KeyListener {
             playerImage = new ImageIcon("org/example/playerStaticLeft.png").getImage();
             repaint();
         }
+
+        if(keyCode == KeyEvent.VK_S){
+            playerY = playerY + playerJump;
+            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            repaint();
+        }
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == treeImage.getImage()){
+            System.out.println("Tree!");
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 }
