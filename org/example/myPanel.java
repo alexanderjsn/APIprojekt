@@ -24,14 +24,25 @@ public class myPanel extends JPanel {
     ArrayList<BufferedImage> playerArray = new ArrayList<>();
 
 
+    // Storlek på frame = skärmens storlek
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    // Storlek på höjd/bredd
+    double screenRow = screenSize.getWidth();
+    double screenCol = screenSize.getHeight();
+
+    // spelare storlek
+    int playerWidth = (int) (screenRow * 0.1);
+    int playerHeight = (int) (screenCol * 0.2);
+
+    // positioner på banan
+
+    //högra hörnan (nere)
+
+
 
 
      public myPanel() throws IOException {
-         // Storlek på frame = skärmens storlek
-         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-         // Storlek på höjd/bredd
-         double screenRow = screenSize.getWidth();
-         double screenCol = screenSize.getHeight();
+
 
         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
@@ -41,6 +52,9 @@ public class myPanel extends JPanel {
         backgroundArray.add(frozenBackground);
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
+
+        // Spelare
+         playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
 
 
         // Mark
@@ -64,9 +78,14 @@ public class myPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
+
+        // nedre högra hörn - sätts här eftersom frame storlek har beräknats redan nät metod kallad
+        int x = 0;
+        int y = getHeight() - playerHeight;
+
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
-        /*g.drawImage(); // mark
-        g.drawImage(); // spelare
+        g.drawImage(playerImage, x,y,playerWidth,playerHeight,null); // mark
+        /*g.drawImage(); // spelare
         g.drawImage(); // fiende
         g.drawImage(); // projektil*/
 
