@@ -10,7 +10,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Random;
 public class myPanel extends JPanel implements KeyListener, MouseListener {
@@ -164,8 +163,8 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         }
         if(keyCode == KeyEvent.VK_B){
             while (treeScore > 0){
+                // medans treescore är mer än 0 kan man kalla metod
                 System.out.println("building");
-                treeScore--;
             }
         }
     }
@@ -195,9 +194,16 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getSource() == treeImage.getImage()){
-            System.out.println("Tree!");
-        }
+        JPanel blue = new JPanel();
+        blue.setBackground(Color.CYAN);
+        int x = e.getX();
+        int y = e.getY();
+        blue.setBounds(x,y,100,100);
+        setLayout(null);
+        add(blue);
+        repaint();
+        revalidate();
+
     }
 
     @Override
@@ -217,6 +223,10 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    public void buildTree(){
 
     }
 }
