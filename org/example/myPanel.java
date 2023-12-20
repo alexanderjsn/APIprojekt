@@ -3,12 +3,15 @@ package org.example;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Random;
-public class myPanel extends JPanel {
+public class myPanel extends JPanel implements KeyListener {
 
     Image backgroundImage;
     Image playerImage;
@@ -34,6 +37,13 @@ public class myPanel extends JPanel {
     int playerWidth = (int) (screenRow * 0.1);
     int playerHeight = (int) (screenCol * 0.2);
 
+    // spelare hastighet
+
+    int playerSpeed = 60;
+    int playerJump = 100;
+    int playerX;
+    int playerY;
+
     // positioner på banan
 
     //högra hörnan (nere)
@@ -56,7 +66,8 @@ public class myPanel extends JPanel {
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
 
-
+        setFocusable(true);
+        addKeyListener(this);
         // Mark
         JPanel groundPanel = new JPanel();
         // 30% längd, 20% höjd av skärmen
@@ -79,12 +90,12 @@ public class myPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
 
+
         // nedre högra hörn - sätts här eftersom frame storlek har beräknats redan nät metod kallad
-        int x = 0;
-        int y = getHeight() - playerHeight;
+
 
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
-        g.drawImage(playerImage, x,y,playerWidth,playerHeight,null); // mark
+        g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,null); // mark
         /*g.drawImage(); // spelare
         g.drawImage(); // fiende
         g.drawImage(); // projektil*/
@@ -92,4 +103,23 @@ public class myPanel extends JPanel {
     }
 
 
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+         int keyCode = e.getKeyCode();
+    if(keyCode == KeyEvent.VK_D){
+        playerX = playerX + playerSpeed;
+        System.out.println("he");
+        repaint();
+    }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
 }
