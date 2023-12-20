@@ -3,10 +3,7 @@ package org.example;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +53,12 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     int treeY = 200;
     //JPanel blue = new JPanel();
 
+    int enemyX = 250;
+    int enemyY = 0;
+
+    int projectileX = 250;
+    int projectileY = 0;
+   Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
 
     public myPanel() throws IOException {
 
@@ -70,13 +73,13 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
 
-
+        sendProjectileTimer.start();
 
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
          treeImage = new ImageIcon("org/example/playerStatic.png");
          enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
-
+         projectileImage = new ImageIcon(("org/example/lightningBolt.png")).getImage();
         setFocusable(true);
         addKeyListener(this);
         addMouseListener(this);
@@ -111,11 +114,12 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
 
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
-        g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,null); // mark
+        g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,this); // mark
         //g.drawImage(treeImage.getImage(), treeX, treeY,playerWidth,playerHeight,null); // mark
-        g.drawImage(enemyImage, 250, 0,playerWidth,playerHeight,null); // mark
+        g.drawImage(enemyImage, enemyX, enemyY,playerWidth,playerHeight,null); // mark
+        g.drawImage(projectileImage, projectileX, projectileY,50,50,null); // mark
 
-        Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
+
         Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
 
         if (playerRect.intersects(treeRect)){
@@ -231,4 +235,24 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     public void buildTree(){
 
     }
+
+
+    Timer sendingProjectileTimer = new Timer(100, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        sendProjectileTimer.start();
+        }
+    });
+    Timer sendProjectileTimer = new Timer(4, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //metod som skickar badboll
+            int findPlayerX = (int) playerRect.getX();
+            int findPlayerY = (int) playerRect.getY();
+            projectileY = (findPlayerX + findPlayerY);
+            repaint();
+        }
+    });
+
+
 }
