@@ -14,6 +14,13 @@ public class GUI extends JFrame {
         double screenCol = screenSize.getHeight();
         setSize(screenSize);
 
+        JPanel groundPanel = new JPanel();
+        double groundRow = screenRow * 0.3;
+        double groundCol = screenCol * 0.2;
+        groundPanel.setPreferredSize(new Dimension((int) groundRow, (int) groundCol));
+        groundPanel.setBackground(Color.black);
+        add(groundPanel,BorderLayout.SOUTH);
+
         setVisible(true);
     }
 }
