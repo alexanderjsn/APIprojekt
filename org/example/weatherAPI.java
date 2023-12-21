@@ -4,19 +4,20 @@ import java.util.List;
 
 public class weatherAPI {
 
-    private List<Weather> Weather;
+    // skapar en lista för Väder - då i JSON filen är det en lista
+    private List<Weather> weather;
 
-    public List<weatherAPI.Weather> getWeather() {
-        return Weather;
+    public weatherAPI(List<weatherAPI.Weather> weather) {
+        weather = weather;
     }
 
-    public void setWeather(List<weatherAPI.Weather> weather) {
-        Weather = weather;
+    public List<Weather> getWeather() {
+        return weather;
     }
 
-    public static class Weather{
-        String main;
-        String description;
+    public static class Weather {
+        private String main;
+        private String description;
 
         public String getMain() {
             return main;
@@ -33,5 +34,6 @@ public class weatherAPI {
         public void setDescription(String description) {
             this.description = description;
         }
+// Getters och setters
     }
 }

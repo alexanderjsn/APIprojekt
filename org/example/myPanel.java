@@ -95,16 +95,15 @@ public class myPanel extends JPanel implements KeyListener {
     int pileY = (int) screenCol - pileHeight;
 
 
-
     // om träd är levande eller ej - används för att reglera mängd material som kan samlas från träd
     boolean treeAlive = true;
 
     //JPanel blue = new JPanel();
 
-
+    int enemyHeight = (int) (screenCol * 0.3);
     // fiende koordinater
-    int enemyX = 250;
-    int enemyY = 0;
+    int enemyX = (int) (screenCol * 0.2);
+    int enemyY = (int) (screenCol - enemyHeight);
 
 
     // projektil koordinater
@@ -116,7 +115,7 @@ public class myPanel extends JPanel implements KeyListener {
 
 
     // Altare
-    int altarHeight = (int) ((int)screenCol * 0.4);
+    int altarHeight = (int) ((int) screenCol * 0.4);
     int altarY = (int) (screenCol - altarHeight);
     int altarX = 0;
     int altarIndex;
@@ -124,7 +123,42 @@ public class myPanel extends JPanel implements KeyListener {
     // Håller koll på material (gör om till mätare)
     JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
 
+    ArrayList<String> countries = new ArrayList<>();
+    Random newRandom = new Random();
+    double randomLat = -90.0 + (90.0 - (-90.0)) * newRandom.nextDouble();
+    double randomLon = -180.0 + (180.0 - (-180.0)) * newRandom.nextDouble();
 
+        /*
+        Country: Egypt
+        Latitude: 26.8206
+        Longitude: 30.8025
+        Asia:
+
+        Country: India
+        Latitude: 20.5937
+        Longitude: 78.9629
+        Europe:
+
+        Country: France
+        Latitude: 46.6033
+        Longitude: 1.8883
+        North America:
+
+        Country: United States
+        Latitude: 37.0902
+        Longitude: -95.7129
+        South America:
+
+        Country: Brazil
+        Latitude: -14.2350
+        Longitude: -51.9253
+        Australia (Oceania):
+
+        Country: Australia
+        Latitude: -25.2744
+        Longitude: 133.7751
+    *
+    * */
 
     public myPanel() throws IOException {
 
@@ -132,51 +166,66 @@ public class myPanel extends JPanel implements KeyListener {
         int maxRequests = 5;
         int triedRequests = 0;
 
-        while (triedRequests < maxRequests) {
-            HttpClient client = HttpClient.newHttpClient();
 
-            //http builder
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=43e561d02137eb0cbdd22c01d4b0c75d"))
-                    .GET()
-                    .build();
-            try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == 200) {
-                    triedRequests++;
-                    Gson gson = new Gson();
-                    weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class);
+        HttpClient client = HttpClient.newHttpClient();
 
-                    for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
-                        System.out.println("Weater is: " + weather.getMain() + "Description: " + weather.getDescription());
-                        // kanske ta tempratur istället?
-                        if (weather.getMain().equals("Clouds")){
-                            //hämta från lista då de finns flera?
-                            //Storm map
-                            //onödig?
-                             if (weather.getMain().equals("Sunny")){
-                                //solig map
-                            }
-                            if (weather.getMain().equals("Snowy")){
-                                //snöig map
-                            }
+        //http builder
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat="+ randomLat + "&lon=" + randomLon + "&appid=51b63e86e7c31d25c02aa8899720bc20"))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                triedRequests++;
+                Gson gson = new Gson();
+                weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class); // här det går fel
 
+                for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
+                    System.out.println("Weater is: " + weather.getMain() + " Description: " + weather.getDescription());
+                    // kanske ta tempratur istället?
+                    if (weather.getMain().equals("Clouds")) {
+                        //hämta från lista då de finns flera?
+                        //Storm map
+                        //onödig?
+                        if (weather.getMain().equals("Sunny")) {
+                            backgroundImage = new ImageIcon(backgroundArray.get(0)).getImage();
+                            repaint();
+                            System.out.println("Sunny!!");
+                            // if light rain etc
                         }
+                        if (weather.getMain().equals("Snowy")) {
+                            backgroundImage = new ImageIcon(backgroundArray.get(1)).getImage();
+                            repaint();
+                            System.out.println("Snowy!!");
+                            // if light rain etc
+                        }
+                        if (weather.getMain().equals("Rain")) {
+                            backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
+                            repaint();
+                            System.out.println("Rainy!!");
+                            // if light rain etc
+                        }
+                        if (weather.getMain().equals("Snowy")) {
+                            //snöig map
+                        }
+                        break;
                     }
-
-                } else {
-                    triedRequests++;
-                    System.out.println("Error - exiting loop");
-                    break;
                 }
 
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } else {
+                triedRequests++;
+                System.out.println("Error - exiting loop");
+
             }
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        if (triedRequests >= maxRequests){
-            System.out.println("Too many attempts..!");
-        }
+
+        /*if (triedRequests >= maxRequests){
+            System.out.println("Too many attempts..!");*/
+
 
         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
@@ -240,6 +289,7 @@ public class myPanel extends JPanel implements KeyListener {
         int randomBackground = random.nextInt(backgroundArray.size());
         backgroundImage = new ImageIcon(backgroundArray.get(randomBackground)).getImage();
         repaint();
+
      }
 
 
