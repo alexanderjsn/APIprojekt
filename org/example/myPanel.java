@@ -7,6 +7,10 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Random;
 public class myPanel extends JPanel implements KeyListener {
@@ -121,9 +125,28 @@ public class myPanel extends JPanel implements KeyListener {
 
     public myPanel() throws IOException {
 
+        // väder API
+        int maxRequests = 5;
+        int triedRequests = 0;
+        HttpClient client = HttpClient.newHttpClient();
+
+        //http builder
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=51b63e86e7c31d25c02aa8899720bc20"))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200){
+
+            }
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
 
-         //Bakgrunder
+        //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
         BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.png"));
         BufferedImage stormyBackground = ImageIO.read(new File("org/example/stormyLevel.png"));
