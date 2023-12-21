@@ -87,7 +87,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         sendProjectileTimer.start();
 
         // Spelare
-         playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
+         playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
          // material att samla
          treeImage = new ImageIcon("org/example/tree.png");
          // fiende array ska vara här
@@ -146,11 +146,12 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 treeAlive = true;
-                System.out.println("Tree Alive!");
+                treeImage = new ImageIcon("org/example/tree.png");
             }
         });
-        // stannar upp spelaren om de springer på trädet
+        // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
         if (playerRect.intersects(treeRect) && treeAlive){
+            playerImage = new ImageIcon("org/example/playerChopping.jpg").getImage();
             playerX = playerX - playerSpeed;
             // ökar antal trä samlade
             treeScore++;
@@ -158,10 +159,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             treeScoreLabel.setText(String.valueOf(treeScore));
             // om träscore blir 5 ( max antral samlat ), sänks trä rektangelns bounds till 0
             if (treeScore > 5){
-                System.out.println("Max tree");
+                treeImage = new ImageIcon("org/example/choppedDown.png");
                 treeAlive = false;
                 treeTimer.start();
-                //bild på nedhugget träd
             };
         }
 
@@ -189,23 +189,23 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
          int keyCode = e.getKeyCode();
     if(keyCode == KeyEvent.VK_D){
         playerX = playerX + playerSpeed;
-        playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+        playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
         repaint();
     }
         if(keyCode == KeyEvent.VK_A){
             playerX = playerX - playerSpeed;
-            playerImage = new ImageIcon("org/example/playerLeft.png").getImage();
+            playerImage = new ImageIcon("org/example/playerLeft.jpg").getImage();
             repaint();
         }
 
         if(keyCode == KeyEvent.VK_S){
             playerY = playerY + playerJump;
-            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
             repaint();
         }
         if(keyCode == KeyEvent.VK_W){
             playerY = playerY - playerJump;
-            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
             repaint();
         }
         if(keyCode == KeyEvent.VK_B){
@@ -228,7 +228,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         int keyCode = e.getKeyCode();
         if(keyCode == KeyEvent.VK_D){
             playerX = playerX + playerSpeed;
-            playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
+            playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
             repaint();
         }
 
@@ -240,7 +240,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
         if(keyCode == KeyEvent.VK_S){
             playerY = playerY + playerJump;
-            playerImage = new ImageIcon("org/example/playerRun.png").getImage();
+            playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
             repaint();
         }
 
