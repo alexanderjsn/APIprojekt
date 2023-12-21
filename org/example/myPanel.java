@@ -19,19 +19,21 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     Image enemyImage;
 
+
+    // Array som håller olika graphics baserat på väder
     ArrayList<BufferedImage> backgroundArray = new ArrayList<>();
+
     ArrayList<BufferedImage> projectileArray = new ArrayList<>();
     ArrayList<BufferedImage> groundArray = new ArrayList<>();
     ArrayList<BufferedImage> playerArray = new ArrayList<>();
 
 
-    // Storlek på frame = skärmens storlek
-    /*Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    // Storlek på frame = skärmens storlek, hämtar in igen för att kunna använda dimensioner
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     // Storlek på höjd/bredd
     double screenRow = screenSize.getWidth();
-    double screenCol = screenSize.getHeight();*/
-    int screenRow = 500;
-    int screenCol = 500;
+    double screenCol = screenSize.getHeight();
+
 
     // spelare storlek
     int playerWidth = (int) (screenRow * 0.1);
@@ -42,7 +44,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     int playerSpeed = 60;
     int playerJump = 60;
 
+    // om denna slås på kan spelaren bygga med material
     Boolean building = false;
+
 
     int playerX;
     int playerY;
@@ -59,6 +63,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     int projectileX = 250;
     int projectileY = 0;
+    boolean treeAlive = true;
+
+    // Håller koll på material (gör om till mätare)
     JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
 
 
@@ -76,19 +83,22 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
 
+        // Börjar skicka ner projektiler mot spelare
         sendProjectileTimer.start();
 
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.png").getImage();
+         // material att samla
          treeImage = new ImageIcon("org/example/tree.png");
+         // fiende array ska vara här
          enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
+         // projektil array ska vara här
          projectileImage = new ImageIcon(("org/example/lightningBolt.png")).getImage();
         setFocusable(true);
         addKeyListener(this);
         addMouseListener(this);
 
-        //TreeScoreLabel
-
+        //TreeScoreLabel  - skapa en metod som uppdaterar
         treeScoreLabel.setForeground(Color.WHITE);
         add(treeScoreLabel);
 
@@ -101,6 +111,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         add(groundPanel, BorderLayout.SOUTH);*/
 
 
+
+
+
      }
     // gör sen till en väder baserad background
     public void weatherBackground() {
@@ -110,6 +123,8 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         repaint();
      }
 
+
+     // ritar alla objekt i frame
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -117,40 +132,51 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
         // nedre högra hörn - sätts här eftersom frame storlek har beräknats redan nät metod kallad
 
-
+        // bakgrund flrst - har skärmens höjd/bredd
         graphics2D.drawImage(backgroundImage, 0,0, getWidth(),getHeight(), this); //bakgrund
         g.drawImage(treeImage.getImage(), treeX, treeY,150,150,null); // mark
         g.drawImage(playerImage, playerX, playerY,playerWidth,playerHeight,this); // mark
         g.drawImage(enemyImage, enemyX, enemyY,playerWidth,playerHeight,null); // mark
         g.drawImage(projectileImage, projectileX, projectileY,50,50,null); // mark
-
+        // Rektanglar som används för obstruction handling och intersects
         Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
         Rectangle projectileRect = new Rectangle(projectileX,projectileY,playerWidth,playerHeight);
         Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
-
-        if (playerRect.intersects(treeRect)){
-            playerX = playerX - playerSpeed;
-            treeScore++;
-            treeScoreLabel.setText(String.valueOf(treeScore));
-            if (treeScore > 5){
-                treeRect.setBounds(treeX,treeY,0,0);
+        Timer treeTimer = new Timer(20000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeAlive = true;
+                System.out.println("Tree Alive!");
             }
+        });
+        // stannar upp spelaren om de springer på trädet
+        if (playerRect.intersects(treeRect) && treeAlive){
+            playerX = playerX - playerSpeed;
+            // ökar antal trä samlade
+            treeScore++;
+            //uppdaterar label
+            treeScoreLabel.setText(String.valueOf(treeScore));
+            // om träscore blir 5 ( max antral samlat ), sänks trä rektangelns bounds till 0
+            if (treeScore > 5){
+                System.out.println("Max tree");
+                treeAlive = false;
+                treeTimer.start();
+                //bild på nedhugget träd
+            };
         }
 
         if (building){
             g.drawImage(projectileImage, playerX + 10, playerY,50,50,null); // mark
             Rectangle buildRect = new Rectangle(playerX + 10,playerY + 10,playerWidth,playerHeight);
             if(projectileRect.intersects(buildRect)){
-                // kalla reset metod
-                // gör animation först
+                building = false;
             }
-        }
 
         /*g.drawImage(); // spelare
         g.drawImage(); // fiende
         g.drawImage(); // projektil*/
 
-    }
+    }}
 
 
     @Override
