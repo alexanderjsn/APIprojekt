@@ -18,6 +18,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     Image groundImage;
 
     Image enemyImage;
+    Image pileImage;
 
 
     // Array som håller olika graphics baserat på väder
@@ -57,15 +58,34 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     // träd
     ImageIcon treeImage;
 
+
+    ImageIcon altarImage;
+
+    // 40% av skärmhöjd
     int treeHeight = (int) ((int) screenCol * 0.4);
+    // 20% av skärmbredd
     int treeWidth = (int) ((int) screenRow * 0.2);
 
     // håller ordning på antal träd samlat
     int treeScore = 0;
 
     // träd koordinater
-    int treeX = 300;
+    // längst ned på x linjen  ----  tar totala värdet av hela x linjen minus storleken på bilden så att den placeras i absolut högra hörnet
+    int treeX = (int) screenRow - treeWidth;
+    // längst ned på y linjen -- samma princip som ovan , tar absoluta värdet av Y linjen - höjden på objekt
     int treeY = (int) screenCol - treeHeight;
+
+
+    // byggplats
+
+    int pileHeight = (int) (screenCol * 0.2);
+    int pileWidth = (int) (screenRow * 0.2);
+
+    // sätter den på mitten av x
+    int pileX = (int) (((int) screenRow * 0.5) - ((int) pileWidth * 0.5));
+    // längst ned på y linjen
+    int pileY = (int) screenCol - pileHeight;
+
 
     // om träd är levande eller ej - används för att reglera mängd material som kan samlas från träd
     boolean treeAlive = true;
@@ -113,6 +133,13 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
          enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
          // projektil array ska vara här
          projectileImage = new ImageIcon(("org/example/lightningBolts.png")).getImage();
+         pileImage = new ImageIcon(("org/example/grassPile.png")).getImage();
+         altarImage = new ImageIcon(("org/example/steg1Altare.png"));
+
+        // fixa så alla images är samma, inte .getimage() på jhälften, kolla skillnad
+
+
+
         setFocusable(true);
         addKeyListener(this);
         addMouseListener(this);
@@ -160,6 +187,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
         g.drawImage(enemyImage, enemyX, enemyY, playerWidth, playerHeight, null); // mark
         g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
+        g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this); // mark
+        g.drawImage(altarImage.getImage(), treeX, treeY, playerWidth, playerHeight, this); // mark
+
         // Rektanglar som används för obstruction handling och intersects
         Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
         Rectangle projectileRect = new Rectangle(projectileX, projectileY, playerWidth, playerHeight);
@@ -186,7 +216,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
                 treeAlive = false;
                 treeTimer.start();
             }
-            ;
         }
 
         if (building) {
@@ -228,11 +257,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
             repaint();
         }
-        if(keyCode == KeyEvent.VK_W){
-            playerY = playerY - playerJump;
-            playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
-            repaint();
-        }
+
         if(keyCode == KeyEvent.VK_B){
             while (treeScore > 0){
                 // medans treescore är mer än 0 kan man kalla metod
@@ -263,13 +288,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             playerImage = new ImageIcon("org/example/playerStaticLeft.png").getImage();
             repaint();
         }
-
-        if(keyCode == KeyEvent.VK_S){
-            playerY = playerY + playerJump;
-            playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
-            repaint();
-        }
-
     }
 
     @Override
