@@ -137,7 +137,7 @@ public class myPanel extends JPanel implements KeyListener {
 
             //http builder
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=51b63e86e7c31d25c02aa8899720bc20"))
+                    .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=43e561d02137eb0cbdd22c01d4b0c75d"))
                     .GET()
                     .build();
             try {
@@ -149,9 +149,21 @@ public class myPanel extends JPanel implements KeyListener {
 
                     for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
                         System.out.println("Weater is: " + weather.getMain() + "Description: " + weather.getDescription());
-                        break;
+                        // kanske ta tempratur istället?
+                        if (weather.getMain().equals("Clouds")){
+                            //hämta från lista då de finns flera?
+                            //Storm map
+                            //onödig?
+                             if (weather.getMain().equals("Sunny")){
+                                //solig map
+                            }
+                            if (weather.getMain().equals("Snowy")){
+                                //snöig map
+                            }
+
+                        }
                     }
-                    break;
+
                 } else {
                     triedRequests++;
                     System.out.println("Error - exiting loop");
