@@ -181,6 +181,8 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             // om träscore blir 5 ( max antral samlat ), sänks trä rektangelns bounds till 0
             if (treeScore > 5) {
                 treeImage = new ImageIcon("org/example/choppedDown.png");
+                treeWidth = (int) (screenRow * 0.03);
+                treeHeight = (int) (screenRow * 0.05);
                 treeAlive = false;
                 treeTimer.start();
             }
