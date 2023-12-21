@@ -26,7 +26,7 @@ public class myPanel extends JPanel implements KeyListener {
 
     ArrayList<BufferedImage> projectileArray = new ArrayList<>();
     ArrayList<BufferedImage> pileArray = new ArrayList<>();
-    ArrayList<BufferedImage> playerArray = new ArrayList<>();
+    ArrayList<BufferedImage> altarArray = new ArrayList<>();
 
 
     // Storlek på frame = skärmens storlek, hämtar in igen för att kunna använda dimensioner
@@ -59,7 +59,7 @@ public class myPanel extends JPanel implements KeyListener {
     ImageIcon treeImage;
 
 
-    ImageIcon altarImage;
+    BufferedImage altarImage;
 
     // 40% av skärmhöjd
     int treeHeight = (int) ((int) screenCol * 0.4);
@@ -99,8 +99,9 @@ public class myPanel extends JPanel implements KeyListener {
 
 
     // projektil koordinater
+
     int projectileX = 0;
-    int projectileY = 0;
+    int projectileY = -700;
 
     int projectileSpeed = 10;
 
@@ -109,6 +110,7 @@ public class myPanel extends JPanel implements KeyListener {
     int altarHeight = (int) ((int)screenCol * 0.4);
     int altarY = (int) (screenCol - altarHeight);
     int altarX = 0;
+    int altarIndex;
 
     // Håller koll på material (gör om till mätare)
     JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
@@ -136,11 +138,20 @@ public class myPanel extends JPanel implements KeyListener {
         pileArray.add(thirdHouse);
 
 
-        // Börjar skicka ner projektiler mot spelare
-        sendingProjectileTimer.start();
+        // altare bilder
+        BufferedImage firstAltar = ImageIO.read(new File("org/example/steg1Altare.png"));
+        BufferedImage secondAltar = ImageIO.read(new File("org/example/steg2Altare.png"));
+        BufferedImage thirdAltar = ImageIO.read(new File("org/example/steg4Altare.png"));
+        altarArray.add(firstAltar);
+        altarArray.add(secondAltar);
+        altarArray.add(thirdAltar);
 
+        // Börjar skicka ner projektiler mot spelare
+        altarTimer.start();
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
+         // Altar
+         altarImage = altarArray.getFirst();
          // material att samla
          treeImage = new ImageIcon("org/example/tree.png");
          // fiende array ska vara här
@@ -148,7 +159,7 @@ public class myPanel extends JPanel implements KeyListener {
          // projektil array ska vara här
          projectileImage = new ImageIcon(("org/example/lightningBolts.png")).getImage();
          pileImage = new ImageIcon(("org/example/grassPile.png")).getImage();
-         altarImage = new ImageIcon(("org/example/steg1Altare.png"));
+
 
         // fixa så alla images är samma, inte .getimage() på jhälften, kolla skillnad
 
@@ -202,19 +213,14 @@ public class myPanel extends JPanel implements KeyListener {
         g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
         g.drawImage(enemyImage, enemyX, enemyY, playerWidth, playerHeight, null); // mark
         g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
-        g.drawImage(altarImage.getImage(), altarX, altarY, playerWidth, altarHeight, this); // mark
+        g.drawImage(altarImage, altarX, altarY, playerWidth, altarHeight, this); // mark
 
         // Rektanglar som används för obstruction handling och intersects
         Rectangle projectileRect = new Rectangle(projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2));
         Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
         Rectangle altarRect = new Rectangle(altarX, altarY, playerWidth, playerHeight);
 
-        Timer altarTimer = new Timer(20000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //
-            }
-        });
+
 
         Timer treeTimer = new Timer(20000, new ActionListener() {
             @Override
@@ -246,7 +252,7 @@ public class myPanel extends JPanel implements KeyListener {
             }
         });
         if (playerRect.intersects(altarRect)){
-
+            altarIndex--;
         }
 
 
@@ -262,7 +268,6 @@ public class myPanel extends JPanel implements KeyListener {
             playerDeath();
         }
 
-
         // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
         if (playerRect.intersects(treeRect) && treeAlive) {
             playerImage = new ImageIcon("org/example/playerChopping.jpg").getImage();
@@ -274,8 +279,6 @@ public class myPanel extends JPanel implements KeyListener {
             // om träscore blir 5 ( max antral samlat ), sänks trä rektangelns bounds till 0
             if (treeScore > 5) {
                 treeImage = new ImageIcon("org/example/choppedDown.png");
-                treeWidth = (int) (screenRow * 0.03);
-                treeHeight = (int) (screenRow * 0.05);
                 treeAlive = false;
                 treeTimer.start();
             }
@@ -284,8 +287,9 @@ public class myPanel extends JPanel implements KeyListener {
         if (shielding) {
             g.drawImage(projectileImage, playerX, playerY + 10, playerWidth, playerHeight, null); // mark
             Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth, playerHeight);
-            if (projectileRect.intersects(buildRect)) {
+            if(buildRect.intersects(pileRect)){
                 shielding = false;
+                buildTimer.start();
             }
         }
     }
@@ -316,6 +320,7 @@ public class myPanel extends JPanel implements KeyListener {
             while (treeScore > 0){
                 // medans treescore är mer än 0 kan man kalla metod
                 System.out.println("building"); //animation
+
                 treeScore--;
                 treeScoreLabel.setText(String.valueOf(treeScore));
 
@@ -363,6 +368,23 @@ public class myPanel extends JPanel implements KeyListener {
         public void actionPerformed(ActionEvent e) {
             projectileY = projectileY + projectileSpeed;
             repaint();
+        }
+    });
+
+    Timer altarTimer = new Timer(10000, new ActionListener() {
+        int altarIndex = 0;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            altarIndex++;
+
+            // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
+            if (altarIndex < altarArray.size()){
+                altarImage = altarArray.get(altarIndex);
+            }
+            if (altarIndex > 3){
+                sendingProjectileTimer.start();
+            }
         }
     });
 
