@@ -1,5 +1,8 @@
 package org.example;
 
+import org.ietf.jgss.GSSContext;
+import com.google.gson.Gson;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -128,23 +131,40 @@ public class myPanel extends JPanel implements KeyListener {
         // väder API
         int maxRequests = 5;
         int triedRequests = 0;
-        HttpClient client = HttpClient.newHttpClient();
 
-        //http builder
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=51b63e86e7c31d25c02aa8899720bc20"))
-                .GET()
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200){
+        while (triedRequests < maxRequests) {
+            HttpClient client = HttpClient.newHttpClient();
 
+            //http builder
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=55.6050&lon=13.0038&appid=51b63e86e7c31d25c02aa8899720bc20"))
+                    .GET()
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    triedRequests++;
+                    Gson gson = new Gson();
+                    weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class);
+
+                    for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
+                        System.out.println("Weater is: " + weather.getMain() + "Description: " + weather.getDescription());
+                        break;
+                    }
+                    break;
+                } else {
+                    triedRequests++;
+                    System.out.println("Error - exiting loop");
+                    break;
+                }
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
-
+        if (triedRequests >= maxRequests){
+            System.out.println("Too many attempts..!");
+        }
 
         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
