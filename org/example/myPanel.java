@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-public class myPanel extends JPanel implements KeyListener, MouseListener {
+public class myPanel extends JPanel implements KeyListener {
 
     Image backgroundImage;
     Image playerImage;
@@ -102,7 +102,13 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     int projectileX = 0;
     int projectileY = 0;
 
+    int projectileSpeed = 10;
 
+
+    // Altare
+    int altarHeight = (int) ((int)screenCol * 0.4);
+    int altarY = (int) (screenCol - altarHeight);
+    int altarX = 0;
 
     // Håller koll på material (gör om till mätare)
     JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
@@ -131,7 +137,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
 
         // Börjar skicka ner projektiler mot spelare
-        sendProjectileTimer.start();
+        sendingProjectileTimer.start();
 
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
@@ -150,7 +156,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
         setFocusable(true);
         addKeyListener(this);
-        addMouseListener(this);
 
         //TreeScoreLabel  - skapa en metod som uppdaterar
         treeScoreLabel.setForeground(Color.WHITE);
@@ -188,8 +193,8 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         Rectangle treeRect = null;
 
         //for (int i = 0; i < 20; i++) {
-            g.drawImage(treeImage.getImage(), treeX, treeY, treeWidth, treeHeight, null); // mark
-            treeRect = new Rectangle(treeX, treeY, treeWidth, treeHeight);
+        g.drawImage(treeImage.getImage(), treeX, treeY, treeWidth, treeHeight, null); // mark
+        treeRect = new Rectangle(treeX, treeY, treeWidth, treeHeight);
         //}
         g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this); // mark
         Rectangle pileRect = new Rectangle(pileX, pileY, pileWidth, pileHeight);
@@ -197,11 +202,19 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
         g.drawImage(enemyImage, enemyX, enemyY, playerWidth, playerHeight, null); // mark
         g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
-        g.drawImage(altarImage.getImage(), treeX, treeY, playerWidth, playerHeight, this); // mark
+        g.drawImage(altarImage.getImage(), altarX, altarY, playerWidth, altarHeight, this); // mark
 
         // Rektanglar som används för obstruction handling och intersects
-        Rectangle projectileRect = new Rectangle(projectileX, projectileY, playerWidth, playerHeight);
+        Rectangle projectileRect = new Rectangle(projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2));
         Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
+        Rectangle altarRect = new Rectangle(altarX, altarY, playerWidth, playerHeight);
+
+        Timer altarTimer = new Timer(20000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //
+            }
+        });
 
         Timer treeTimer = new Timer(20000, new ActionListener() {
             @Override
@@ -216,7 +229,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             public void actionPerformed(ActionEvent e) {
                 if (treeScore >= 3) {
                     treeScore--;
-
                 }
             }
         });
@@ -233,6 +245,11 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
         });
+        if (playerRect.intersects(altarRect)){
+
+        }
+
+
 
         if (playerRect.intersects(pileRect) && treeScore >= 3) {  //fixa så building bygger - ju längre denna mer desto mer byggs
             lessTreeTimer.start();
@@ -241,6 +258,9 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             lessTreeTimer.stop();
         }
 
+        if (playerRect.intersects(projectileRect) && !shielding) {
+            playerDeath();
+        }
 
 
         // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
@@ -262,16 +282,11 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         }
 
         if (shielding) {
-            g.drawImage(projectileImage, playerX + 10, playerY, 50, 50, null); // mark
+            g.drawImage(projectileImage, playerX, playerY + 10, playerWidth, playerHeight, null); // mark
             Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth, playerHeight);
             if (projectileRect.intersects(buildRect)) {
                 shielding = false;
             }
-
-        /*g.drawImage(); // spelare
-        g.drawImage(); // fiende
-        g.drawImage(); // projektil*/
-
         }
     }
 
@@ -284,12 +299,12 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     @Override
     public void keyPressed(KeyEvent e) {
          int keyCode = e.getKeyCode();
-    if(keyCode == KeyEvent.VK_D){
+    if(keyCode == KeyEvent.VK_D && playerSpeed > 0){
         playerX = playerX + playerSpeed;
         playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
         repaint();
     }
-        if(keyCode == KeyEvent.VK_A){
+        if(keyCode == KeyEvent.VK_A&& playerSpeed > 0){
             playerX = playerX - playerSpeed;
             playerImage = new ImageIcon("org/example/playerLeft.jpg").getImage();
             repaint();
@@ -316,67 +331,37 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     @Override
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        if(keyCode == KeyEvent.VK_D){
+        if(keyCode == KeyEvent.VK_D && playerSpeed > 0){
             playerX = playerX + playerSpeed;
             playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
             repaint();
         }
 
-        if(keyCode == KeyEvent.VK_A){
+        if(keyCode == KeyEvent.VK_A && playerSpeed > 0){
             playerX = playerX - playerSpeed;
             playerImage = new ImageIcon("org/example/playerStaticLeft.png").getImage();
             repaint();
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-       /* blue.setBackground(Color.CYAN);
-        int x = e.getX();
-        int y = e.getY();
-        blue.setBounds(x,y,100,100);
-        setLayout(null);
-        add(blue);
-        repaint();
-        revalidate();*/
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    public void buildTree(){
-
-    }
+    public void playerDeath(){
+        playerImage = new ImageIcon("org/example/gravePile.png").getImage();
+        playerSpeed = 0;
+    };
 
 
-    Timer sendingProjectileTimer = new Timer(100, new ActionListener() {
+
+
+    Timer sendingProjectileTimer = new Timer(10000, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
         sendProjectileTimer.start();
         }
     });
-    Timer sendProjectileTimer = new Timer(4, new ActionListener() {
+    Timer sendProjectileTimer = new Timer(40, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            projectileY = projectileY + projectileSpeed;
             repaint();
         }
     });
