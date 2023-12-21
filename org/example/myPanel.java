@@ -88,6 +88,7 @@ public class myPanel extends JPanel implements KeyListener {
     int pileY = (int) screenCol - pileHeight;
 
 
+
     // om träd är levande eller ej - används för att reglera mängd material som kan samlas från träd
     boolean treeAlive = true;
 
@@ -239,38 +240,39 @@ public class myPanel extends JPanel implements KeyListener {
                 }
             }
         });
-        Timer buildTimer = new Timer(5000, new ActionListener() {
-             int pileIndex = 0;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                pileIndex++;
-
-                // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
-                if (pileIndex < pileArray.size()){
-                pileImage = pileArray.get(pileIndex);
-                // öka bounds, öka storlek
-                }
-            }
-        });
 
         // sänker index värdet på altar array så den återställer
         if (playerRect.intersects(altarRect)){
             altarIndex--;
         }
 
+        if (playerRect.intersects(pileRect)){
+        }
 
         // om huset är nästan färdigbyggt kan spelaren skyddas intuti
-        if (playerRect.intersects(pileRect) && pileIndex > 3 ){
-            shielding = true;
+        if (playerRect.intersects(pileRect) && building){
+                pileIndex++;
+                treeScore--;
+                System.out.println("Building house!   " +" tree     "  + treeScore + " pile     "   + pileIndex);
+                // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
+                if (pileIndex < pileArray.size()){
+                    pileImage = pileArray.get(pileIndex);
+                    // öka bounds, öka storlek
+            } else {
+                System.out.println("Not enough wood");
+                building = false;
+            }
+           /* buildingMethod();
+            pileIndex++;
+            treeScore--;*/
             // om spelaren har mer än 3 trä, kan de bygga på plats
-            if (playerRect.intersects(pileRect) && building) {  //fixa så building bygger - ju längre denna mer desto mer byggs
-                buildingMethod();
+           /* if (building) {  //fixa så building bygger - ju längre denna mer desto mer byggs
+
                 // stannar vid mindre än 3
             } else {
                 lessTreeTimer.stop();
-                buildTimer.stop();
-            }
+            }*/
         }
 
         // om spelaren blir träffad av attack och är skyddad
@@ -299,7 +301,6 @@ public class myPanel extends JPanel implements KeyListener {
             Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth, playerHeight);
             if(buildRect.intersects(pileRect)){
                 shielding = false;
-                buildTimer.start();
                 lessTreeTimer.start();
             }
         }
@@ -328,10 +329,10 @@ public class myPanel extends JPanel implements KeyListener {
 
 
         if(keyCode == KeyEvent.VK_B){
-            while (treeScore > 0){
+            if (treeScore > 0){
                 // medans treescore är mer än 0 kan man kalla metod
-                System.out.println("building"); //animation
                 building = true;
+                //System.out.println("building      " + "treeScore     " + treeScore + "pileindex      "+ pileIndex); //animation
                /* treeScore--;
                 treeScoreLabel.setText(String.valueOf(treeScore));*/
 
@@ -359,8 +360,8 @@ public class myPanel extends JPanel implements KeyListener {
             repaint();
         }
         if(keyCode == KeyEvent.VK_B){
-            System.out.println("Stopped building");
-            building = false;
+            /*System.out.println("Stopped building");
+            building = false;*/
 
         }
     }
