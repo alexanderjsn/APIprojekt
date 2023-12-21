@@ -25,7 +25,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     ArrayList<BufferedImage> backgroundArray = new ArrayList<>();
 
     ArrayList<BufferedImage> projectileArray = new ArrayList<>();
-    ArrayList<BufferedImage> groundArray = new ArrayList<>();
+    ArrayList<BufferedImage> pileArray = new ArrayList<>();
     ArrayList<BufferedImage> playerArray = new ArrayList<>();
 
 
@@ -46,7 +46,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     int playerJump = 20;
 
     // om denna slås på kan spelaren bygga med material
-    Boolean building = false;
+    Boolean shielding = false;
 
 
     // 0 på X linje
@@ -122,6 +122,14 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
 
+        BufferedImage firstHouse = ImageIO.read(new File("org/example/steg1Altare.png"));
+        BufferedImage secondHouse = ImageIO.read(new File("org/example/steg2Altare.png"));
+        BufferedImage thirdHouse = ImageIO.read(new File("org/example/steg4Altare.png"));
+        pileArray.add(firstHouse);
+        pileArray.add(secondHouse);
+        pileArray.add(thirdHouse);
+
+
         // Börjar skicka ner projektiler mot spelare
         sendProjectileTimer.start();
 
@@ -183,16 +191,18 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             g.drawImage(treeImage.getImage(), treeX, treeY, treeWidth, treeHeight, null); // mark
             treeRect = new Rectangle(treeX, treeY, treeWidth, treeHeight);
         //}
+        g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this); // mark
+        Rectangle pileRect = new Rectangle(pileX, pileY, pileWidth, pileHeight);
 
         g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
         g.drawImage(enemyImage, enemyX, enemyY, playerWidth, playerHeight, null); // mark
         g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
-        g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this); // mark
         g.drawImage(altarImage.getImage(), treeX, treeY, playerWidth, playerHeight, this); // mark
 
         // Rektanglar som används för obstruction handling och intersects
-        Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
         Rectangle projectileRect = new Rectangle(projectileX, projectileY, playerWidth, playerHeight);
+        Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
+
         Timer treeTimer = new Timer(20000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -200,6 +210,39 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
                 treeImage = new ImageIcon("org/example/tree.png");
             }
         });
+        Timer lessTreeTimer = new Timer(4000, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (treeScore >= 3) {
+                    treeScore--;
+
+                }
+            }
+        });
+        Timer buildTimer = new Timer(5000, new ActionListener() {
+            int pileIndex = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pileIndex++;
+
+                // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
+                if (pileIndex < pileArray.size()){
+                pileImage = pileArray.get(pileIndex);
+                }
+            }
+        });
+
+        if (playerRect.intersects(pileRect) && treeScore >= 3) {  //fixa så building bygger - ju längre denna mer desto mer byggs
+            lessTreeTimer.start();
+            buildTimer.start();
+        } else {
+            lessTreeTimer.stop();
+        }
+
+
+
         // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
         if (playerRect.intersects(treeRect) && treeAlive) {
             playerImage = new ImageIcon("org/example/playerChopping.jpg").getImage();
@@ -218,11 +261,11 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        if (building) {
+        if (shielding) {
             g.drawImage(projectileImage, playerX + 10, playerY, 50, 50, null); // mark
             Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth, playerHeight);
             if (projectileRect.intersects(buildRect)) {
-                building = false;
+                shielding = false;
             }
 
         /*g.drawImage(); // spelare
@@ -252,11 +295,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             repaint();
         }
 
-        if(keyCode == KeyEvent.VK_S){
-            playerY = playerY + playerJump;
-            playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
-            repaint();
-        }
+
 
         if(keyCode == KeyEvent.VK_B){
             while (treeScore > 0){
@@ -266,7 +305,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
                 treeScoreLabel.setText(String.valueOf(treeScore));
 
                 if (treeScore <= 6){
-                       building = true;
+                       shielding = true;
                     } else {
                         System.out.println("Not enough materials");
                     }
@@ -337,7 +376,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     Timer sendProjectileTimer = new Timer(4, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            //metod som skickar badboll
 
             repaint();
         }
