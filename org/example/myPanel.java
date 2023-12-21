@@ -42,6 +42,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
     int playerSpeed = 60;
     int playerJump = 60;
 
+    Boolean building = false;
 
     int playerX;
     int playerY;
@@ -114,7 +115,6 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
 
-
         // nedre högra hörn - sätts här eftersom frame storlek har beräknats redan nät metod kallad
 
 
@@ -125,7 +125,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(projectileImage, projectileX, projectileY,50,50,null); // mark
 
         Rectangle playerRect = new Rectangle(playerX,playerY,playerWidth,playerHeight);
-
+        Rectangle projectileRect = new Rectangle(projectileX,projectileY,playerWidth,playerHeight);
         Rectangle treeRect = new Rectangle(treeX,treeY,playerWidth,playerHeight);
 
         if (playerRect.intersects(treeRect)){
@@ -134,6 +134,15 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             treeScoreLabel.setText(String.valueOf(treeScore));
             if (treeScore > 5){
                 treeRect.setBounds(treeX,treeY,0,0);
+            }
+        }
+
+        if (building){
+            g.drawImage(projectileImage, playerX + 10, playerY,50,50,null); // mark
+            Rectangle buildRect = new Rectangle(playerX + 10,playerY + 10,playerWidth,playerHeight);
+            if(projectileRect.intersects(buildRect)){
+                // kalla reset metod
+                // gör animation först
             }
         }
 
@@ -177,6 +186,13 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
             while (treeScore > 0){
                 // medans treescore är mer än 0 kan man kalla metod
                 System.out.println("building");
+                treeScore--;
+
+                if (treeScore <= 6){
+                       building = true;
+                    } else {
+                        System.out.println("Not enough materials");
+                    }
             }
         }
     }
@@ -206,7 +222,7 @@ public class myPanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        /*blue.setBackground(Color.CYAN);
+       /* blue.setBackground(Color.CYAN);
         int x = e.getX();
         int y = e.getY();
         blue.setBounds(x,y,100,100);
