@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Random;
 public class myPanel extends JPanel implements KeyListener {
+    Image logs;
 
     Image backgroundImage;
     Image playerImage;
@@ -35,6 +36,7 @@ public class myPanel extends JPanel implements KeyListener {
     ArrayList<BufferedImage> pileArray = new ArrayList<>();
     ArrayList<BufferedImage> altarArray = new ArrayList<>();
 
+    ArrayList<BufferedImage> logArray = new ArrayList<>();
 
     // Storlek på frame = skärmens storlek, hämtar in igen för att kunna använda dimensioner
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -42,11 +44,12 @@ public class myPanel extends JPanel implements KeyListener {
     double screenRow = screenSize.getWidth();
     double screenCol = screenSize.getHeight();
 
+    boolean choppingWood = false;
     boolean building = false;
 
     // spelare storlek
-    int playerWidth = (int) (screenRow * 0.1);
-    int playerHeight = (int) (screenCol * 0.2);
+    int playerWidth = (int) (screenRow * 0.2);
+    int playerHeight = (int) (screenCol * 0.3);
 
     // spelare hastighet
 
@@ -55,7 +58,6 @@ public class myPanel extends JPanel implements KeyListener {
 
     // om denna slås på kan spelaren bygga med material
     Boolean shielding = false;
-    Boolean carryWood = false;
 
     // 0 på X linje
     int playerX;
@@ -70,9 +72,9 @@ public class myPanel extends JPanel implements KeyListener {
     BufferedImage altarImage;
 
     // 40% av skärmhöjd
-    int treeHeight = (int) ((int) screenCol * 0.4);
+    int treeHeight = (int) ((int) screenCol * 0.6);
     // 20% av skärmbredd
-    int treeWidth = (int) ((int) screenRow * 0.2);
+    int treeWidth = (int) ((int) screenRow * 0.4);
 
     // håller ordning på antal träd samlat
     int treeScore = 0;
@@ -97,6 +99,7 @@ public class myPanel extends JPanel implements KeyListener {
 
     // om träd är levande eller ej - används för att reglera mängd material som kan samlas från träd
     boolean treeAlive = true;
+    boolean sacrificeAltar = false;
 
     //JPanel blue = new JPanel();
 
@@ -128,37 +131,6 @@ public class myPanel extends JPanel implements KeyListener {
     double randomLat = -90.0 + (90.0 - (-90.0)) * newRandom.nextDouble();
     double randomLon = -180.0 + (180.0 - (-180.0)) * newRandom.nextDouble();
 
-        /*
-        Country: Egypt
-        Latitude: 26.8206
-        Longitude: 30.8025
-        Asia:
-
-        Country: India
-        Latitude: 20.5937
-        Longitude: 78.9629
-        Europe:
-
-        Country: France
-        Latitude: 46.6033
-        Longitude: 1.8883
-        North America:
-
-        Country: United States
-        Latitude: 37.0902
-        Longitude: -95.7129
-        South America:
-
-        Country: Brazil
-        Latitude: -14.2350
-        Longitude: -51.9253
-        Australia (Oceania):
-
-        Country: Australia
-        Latitude: -25.2744
-        Longitude: 133.7751
-    *
-    * */
 
     public myPanel() throws IOException {
 
@@ -177,7 +149,7 @@ public class myPanel extends JPanel implements KeyListener {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                triedRequests++;
+                //triedRequests++;
                 Gson gson = new Gson();
                 weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class); // här det går fel
 
@@ -214,7 +186,7 @@ public class myPanel extends JPanel implements KeyListener {
                 }
 
             } else {
-                triedRequests++;
+               // triedRequests++;
                 System.out.println("Error - exiting loop");
 
             }
@@ -228,9 +200,9 @@ public class myPanel extends JPanel implements KeyListener {
 
 
         //Bakgrunder
-        BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLevel.png"));
-        BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.png"));
-        BufferedImage stormyBackground = ImageIO.read(new File("org/example/stormyLevel.png"));
+        BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLandscapeOne.png"));
+        BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.jpg"));
+        BufferedImage stormyBackground = ImageIO.read(new File("org/example/stormyLevel.jpg"));
         // Finns bättre sätt att hämta nivåer?
         backgroundArray.add(frozenBackground);
         backgroundArray.add(sunnyBackground);
@@ -248,12 +220,30 @@ public class myPanel extends JPanel implements KeyListener {
         pileArray.add(fifthHouse);
 
         // altare bilder
-        BufferedImage firstAltar = ImageIO.read(new File("org/example/steg1Altare.png"));
-        BufferedImage secondAltar = ImageIO.read(new File("org/example/steg2Altare.png"));
+        BufferedImage firstAltar = ImageIO.read(new File("org/example/altar.png"));
+        BufferedImage secondAltar = ImageIO.read(new File("org/example/steg1Altare.png"));
         BufferedImage thirdAltar = ImageIO.read(new File("org/example/steg4Altare.png"));
+        BufferedImage fourthAltar = ImageIO.read(new File("org/example/steg5Altare.png"));
+
+
         altarArray.add(firstAltar);
         altarArray.add(secondAltar);
         altarArray.add(thirdAltar);
+        altarArray.add(fourthAltar);
+
+
+/*          framtida implementering - ska utöka antal logs för varje 10 trä:
+        //logs
+        BufferedImage logOne = ImageIO.read(new File("org/example/log1.png"));
+        BufferedImage logTwo = ImageIO.read(new File("org/example/log2.png"));
+        BufferedImage logThree = ImageIO.read(new File("org/example/log3.png"));
+        logArray.add(logOne);
+        logArray.add(logTwo);
+        logArray.add(logThree);
+*/
+
+
+
 
         // Börjar skicka ner projektiler mot spelare
         altarTimer.start();
@@ -262,12 +252,13 @@ public class myPanel extends JPanel implements KeyListener {
          // Altar
          altarImage = altarArray.getFirst();
          // material att samla
-         treeImage = new ImageIcon("org/example/tree.png");
-         // fiende array ska vara här
-         enemyImage = new ImageIcon("org/example/enemyStatic.png").getImage();
+         treeImage = new ImageIcon("org/example/trädSunny.png");
+
          // projektil array ska vara här
          projectileImage = new ImageIcon(("org/example/lightningBolts.png")).getImage();
          pileImage = pileArray.getFirst();
+
+        logs = new ImageIcon("org/example/trueLogs.png").getImage();
 
 
         // fixa så alla images är samma, inte .getimage() på jhälften, kolla skillnad
@@ -315,9 +306,9 @@ public class myPanel extends JPanel implements KeyListener {
         Rectangle pileRect = new Rectangle(pileX, pileY, pileWidth, pileHeight);
 
         g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
-        g.drawImage(enemyImage, enemyX, enemyY, playerWidth, playerHeight, null); // mark
         g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
         g.drawImage(altarImage, altarX, altarY, playerWidth, altarHeight, this); // mark
+        g.drawImage(logs, 0, 0, playerWidth, playerHeight, this); // mark
 
         // Rektanglar som används för obstruction handling och intersects
         Rectangle projectileRect = new Rectangle(projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2));
@@ -339,21 +330,22 @@ public class myPanel extends JPanel implements KeyListener {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (treeScore >= 3) {
                     treeScore--;
-                    System.out.println("Lower" + treeScore);
-                }
+                    treeScoreLabel.setText(String.valueOf(treeScore));
             }
         });
 
 
+        // Obstruction handling
+
         // sänker index värdet på altar array så den återställer
-        if (playerRect.intersects(altarRect)){
-            altarIndex--;
+        if (playerRect.intersects(altarRect) && sacrificeAltar){ // && lägg till så spelare måste ha carryWood true
+            altarIndex = 0;
+            treeScore = 0;//fixa
+            treeScoreLabel.setText(String.valueOf(treeScore));
         }
 
-        if (playerRect.intersects(pileRect)){
-        }
+
 
         // om huset är nästan färdigbyggt kan spelaren skyddas intuti
         if (playerRect.intersects(pileRect) && building){
@@ -368,6 +360,9 @@ public class myPanel extends JPanel implements KeyListener {
                 System.out.println("Not enough wood");
                 building = false;
             }
+
+
+
            /* buildingMethod();
             pileIndex++;
             treeScore--;*/
@@ -385,33 +380,58 @@ public class myPanel extends JPanel implements KeyListener {
             playerDeath();
         }
 
-        // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
-        if (playerRect.intersects(treeRect) && treeAlive) {
-            playerImage = new ImageIcon("org/example/playerChopping.jpg").getImage();
-            playerX = playerX - playerSpeed;
-            // ökar antal trä samlade
-            treeScore++;
-            //uppdaterar label
-            treeScoreLabel.setText(String.valueOf(treeScore));
-            // om träscore blir 5 ( max antral samlat ), sänks trä rektangelns bounds till 0
-            if (treeScore > 10) {
-                treeImage = new ImageIcon("org/example/choppedDown.png");
-                treeAlive = false;
-                treeTimer.start();
-            }
-        }
 
-        if (shielding) {
-            g.drawImage(projectileImage, playerX, playerY + 10, playerWidth, playerHeight, null); // mark
-            Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth, playerHeight);
+        // interaktion med träd - endast möjligt om träd är aktivt för att förhindra fusk
+
+            if (playerRect.intersects(treeRect) && treeAlive && choppingWood) {
+
+                playerX = playerX - playerSpeed;
+
+                // ökar antal trä samlade
+                treeScore++;
+                System.out.println(treeScore);
+                //uppdaterar trä ikon (framtida implementering)
+                treeScoreLabel.setText(String.valueOf(treeScore)); //byt ut till metod
+
+                // om träscore blir 5 ( max antral samlat ) dör träd i 20 sek
+                if (treeScore > 10){
+                    treeAlive  = false;
+                    treeTimer.start();
+                }
+            }
+
+             /*   if (treeScore > 10) {
+                    treeImage = new ImageIcon("org/example/treeChopped.psd");
+                    treeAlive = false;
+                    treeTimer.start();
+                } else {
+                    moreTree.stop();
+                }*/
+
+        // framtida sköldmekanik:
+       /* if (shielding) {
+            Rectangle buildRect = new Rectangle(playerX + 10, playerY + 10, playerWidth + 10, playerHeight + 10);
             if(buildRect.intersects(pileRect)){
                 shielding = false;
                 lessTreeTimer.start();
             }
+        }*/
+
+        // Uppdaterar antal trä spelaren har i inventory
+        //kolla sen
+        int treeIndex = 0;
+        // kollar modulus istället. För varje 10 trä, uppdateras tree index med 1 ((uppdaterar bilder)
+        if (treeScore % 10 == 0){
+             treeIndex++;
+
+            // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
+            if (treeIndex < logArray.size()){
+                logs = logArray.get(treeIndex);
+            }
         }
     }
 
-
+    // används ej
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -422,17 +442,17 @@ public class myPanel extends JPanel implements KeyListener {
          int keyCode = e.getKeyCode();
     if(keyCode == KeyEvent.VK_D && playerSpeed > 0){
         playerX = playerX + playerSpeed;
-        playerImage = new ImageIcon("org/example/playerRunning.jpg").getImage();
+        playerImage = new ImageIcon("org/example/playerRunningTwo.png").getImage();
         repaint();
     }
         if(keyCode == KeyEvent.VK_A&& playerSpeed > 0){
             playerX = playerX - playerSpeed;
-            playerImage = new ImageIcon("org/example/playerLeft.jpg").getImage();
+            playerImage = new ImageIcon("org/example/playerRunningLeftTwo.png").getImage();
             repaint();
         }
 
 
-
+        // bygg funktion
         if(keyCode == KeyEvent.VK_B){
             if (treeScore > 0){
                 // medans treescore är mer än 0 kan man kalla metod
@@ -448,6 +468,19 @@ public class myPanel extends JPanel implements KeyListener {
                     }*/
             }
         }
+        if(keyCode == KeyEvent.VK_C){
+            playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
+            repaint();
+            choppingWood = true;
+            /*System.out.println("Stopped building");
+            building = false;*/
+
+        }
+        if(keyCode == KeyEvent.VK_R){
+            playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
+            repaint();
+            sacrificeAltar = true;
+        }
     }
 
     @Override
@@ -455,13 +488,13 @@ public class myPanel extends JPanel implements KeyListener {
         int keyCode = e.getKeyCode();
         if(keyCode == KeyEvent.VK_D && playerSpeed > 0){
             playerX = playerX + playerSpeed;
-            playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
+            playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
             repaint();
         }
 
         if(keyCode == KeyEvent.VK_A && playerSpeed > 0){
             playerX = playerX - playerSpeed;
-            playerImage = new ImageIcon("org/example/playerStaticLeft.png").getImage();
+            playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
             repaint();
         }
         if(keyCode == KeyEvent.VK_B){
@@ -469,8 +502,22 @@ public class myPanel extends JPanel implements KeyListener {
             building = false;*/
 
         }
+        if(keyCode == KeyEvent.VK_C){
+            playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
+            repaint();
+            choppingWood = false;
+            /*System.out.println("Stopped building");
+            building = false;*/
+
+        }
+        if(keyCode == KeyEvent.VK_R){
+            playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
+            repaint();
+            sacrificeAltar = false;
+        }
     }
 
+    //förhindrar spelaren från att röra sig vid död. Visar grav.
     public void playerDeath(){
         playerImage = new ImageIcon("org/example/gravePile.png").getImage();
         playerSpeed = 0;
@@ -478,6 +525,7 @@ public class myPanel extends JPanel implements KeyListener {
 
 
 
+    // instant kill om spelaren inte är inuti hus
 
     Timer sendingProjectileTimer = new Timer(10000, new ActionListener() {
         @Override
@@ -485,6 +533,7 @@ public class myPanel extends JPanel implements KeyListener {
         sendProjectileTimer.start();
         }
     });
+
     Timer sendProjectileTimer = new Timer(40, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -493,6 +542,8 @@ public class myPanel extends JPanel implements KeyListener {
         }
     });
 
+
+    // sänker altar score i intervaller - ändrar bild med
     Timer altarTimer = new Timer(10000, new ActionListener() {
         int altarIndex = 0;
 
@@ -504,16 +555,10 @@ public class myPanel extends JPanel implements KeyListener {
             if (altarIndex < altarArray.size()){
                 altarImage = altarArray.get(altarIndex);
             }
+            // skickar ned instant kill om index når över 3
             if (altarIndex > 3){
                 sendingProjectileTimer.start();
             }
         }
     });
-    public void buildingMethod(){
-        while(building){
-            pileIndex++;
-            treeScore--;
-        }
     }
-
-}
