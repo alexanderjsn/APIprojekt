@@ -184,7 +184,7 @@ public class myPanel extends JPanel implements KeyListener {
 
 
         // Altar som hela tiden blir sämre över tiden, om spelaren inte lagar det kommer en arg gud skicka ner instantdeath
-        startAltar();
+       altarTimer.start();
 
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
@@ -244,7 +244,7 @@ public class myPanel extends JPanel implements KeyListener {
         // Obstruction handling
 
         // sänker index värdet på altar array så den återställer
-        if (playerRect.intersects(altarRect) && sacrificeAltar){
+        if (playerRect.intersects(altarRect) && sacrificeAltar && treeScore >= 10){
             altarIndex = 0;
             treeScore = 0;//fixa
             treeScoreLabel.setText(String.valueOf(treeScore));
@@ -526,8 +526,8 @@ public class myPanel extends JPanel implements KeyListener {
             }
         });
     }
-    public void startAltar(){
-    }    // sänker altar score i intervaller - ändrar bild med
+
+       // sänker altar score i intervaller - ändrar bild med
     Timer altarTimer = new Timer(10000, new ActionListener() {
         int altarIndex = 0;
 
