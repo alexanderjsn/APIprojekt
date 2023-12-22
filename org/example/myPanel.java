@@ -17,26 +17,35 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Random;
 public class myPanel extends JPanel implements KeyListener {
-    Image logs;
+    //Image logs;  framtida implementering
 
+
+    // Image variabler
     Image backgroundImage;
     Image playerImage;
 
     Image projectileImage;
-    Image groundImage;
-
-    Image enemyImage;
     Image pileImage;
-    int pileIndex = 0;
+    // träd
+    ImageIcon treeImage;
+
+
+    BufferedImage altarImage;
+
 
     // Array som håller olika graphics baserat på väder
     ArrayList<BufferedImage> backgroundArray = new ArrayList<>();
-
+    // ej implementerad ännu
     ArrayList<BufferedImage> projectileArray = new ArrayList<>();
+
+    // Array som visar utveckling av hus/altare/antal träd i inventory
     ArrayList<BufferedImage> pileArray = new ArrayList<>();
     ArrayList<BufferedImage> altarArray = new ArrayList<>();
-
     ArrayList<BufferedImage> logArray = new ArrayList<>();
+
+
+    // träd array här med som visar träd växa igen över tid
+
 
     // Storlek på frame = skärmens storlek, hämtar in igen för att kunna använda dimensioner
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,19 +53,22 @@ public class myPanel extends JPanel implements KeyListener {
     double screenRow = screenSize.getWidth();
     double screenCol = screenSize.getHeight();
 
+    // på/av knapp för att kunna hugga ved, bygga, laga altare.
     boolean choppingWood = false;
     boolean building = false;
+
+
+    // Spelare settings
 
     // spelare storlek
     int playerWidth = (int) (screenRow * 0.2);
     int playerHeight = (int) (screenCol * 0.3);
 
     // spelare hastighet
-
     int playerSpeed = 20;
 
 
-    // om denna slås på kan spelaren bygga med material
+    // om denna slås på kan spelaren vara odödlig tillfälligt (framtidga implementering)
     Boolean shielding = false;
 
     // 0 på X linje
@@ -65,13 +77,10 @@ public class myPanel extends JPanel implements KeyListener {
     // sätter spelaren längst ned i vänstra hörnet som startpunkt
     int playerY = (int) screenCol - playerHeight;
 
-    // träd
-    ImageIcon treeImage;
 
+    // Träd / ved
 
-    BufferedImage altarImage;
-
-    // 40% av skärmhöjd
+    // Storlek
     int treeHeight = (int) ((int) screenCol * 0.6);
     // 20% av skärmbredd
     int treeWidth = (int) ((int) screenRow * 0.4);
@@ -87,12 +96,12 @@ public class myPanel extends JPanel implements KeyListener {
 
 
     // byggplats
-
+    int pileIndex = 0;
     int pileHeight = (int) (screenCol * 0.2);
     int pileWidth = (int) (screenRow * 0.2);
 
     // sätter den på mitten av x
-    int pileX = (int) (((int) screenRow * 0.5) - ((int) pileWidth * 0.5));
+    int pileX = (int) (((int) screenRow * 0.5) - (pileWidth * 0.5));
     // längst ned på y linjen
     int pileY = (int) screenCol - pileHeight;
 
@@ -101,18 +110,11 @@ public class myPanel extends JPanel implements KeyListener {
     boolean treeAlive = true;
     boolean sacrificeAltar = false;
 
-    //JPanel blue = new JPanel();
-
-    int enemyHeight = (int) (screenCol * 0.3);
-    // fiende koordinater
-    int enemyX = (int) (screenCol * 0.2);
-    int enemyY = (int) (screenCol - enemyHeight);
-
 
     // projektil koordinater
 
     int projectileX = 0;
-    int projectileY = -700;
+    int projectileY = -700; // fixa senare
 
     int projectileSpeed = 10;
 
@@ -126,87 +128,20 @@ public class myPanel extends JPanel implements KeyListener {
     // Håller koll på material (gör om till mätare)
     JLabel treeScoreLabel = new JLabel(String.valueOf(treeScore));
 
-    ArrayList<String> countries = new ArrayList<>();
-    Random newRandom = new Random();
-    double randomLat = -90.0 + (90.0 - (-90.0)) * newRandom.nextDouble();
-    double randomLon = -180.0 + (180.0 - (-180.0)) * newRandom.nextDouble();
-
 
     public myPanel() throws IOException {
-
-        // väder API
-        int maxRequests = 5;
-        int triedRequests = 0;
-
-
-        HttpClient client = HttpClient.newHttpClient();
-
-        //http builder
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat="+ randomLat + "&lon=" + randomLon + "&appid=51b63e86e7c31d25c02aa8899720bc20"))
-                .GET()
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                //triedRequests++;
-                Gson gson = new Gson();
-                weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class); // här det går fel
-
-                for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
-                    System.out.println("Weater is: " + weather.getMain() + " Description: " + weather.getDescription());
-                    // kanske ta tempratur istället?
-                    if (weather.getMain().equals("Clouds")) {
-                        //hämta från lista då de finns flera?
-                        //Storm map
-                        //onödig?
-                        if (weather.getMain().equals("Sunny")) {
-                            backgroundImage = new ImageIcon(backgroundArray.get(0)).getImage();
-                            repaint();
-                            System.out.println("Sunny!!");
-                            // if light rain etc
-                        }
-                        if (weather.getMain().equals("Snowy")) {
-                            backgroundImage = new ImageIcon(backgroundArray.get(1)).getImage();
-                            repaint();
-                            System.out.println("Snowy!!");
-                            // if light rain etc
-                        }
-                        if (weather.getMain().equals("Rain")) {
-                            backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
-                            repaint();
-                            System.out.println("Rainy!!");
-                            // if light rain etc
-                        }
-                        if (weather.getMain().equals("Snowy")) {
-                            //snöig map
-                        }
-                        break;
-                    }
-                }
-
-            } else {
-               // triedRequests++;
-                System.out.println("Error - exiting loop");
-
-            }
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        /*if (triedRequests >= maxRequests){
-            System.out.println("Too many attempts..!");*/
 
 
         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLandscapeOne.png"));
         BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.jpg"));
         BufferedImage stormyBackground = ImageIO.read(new File("org/example/stormyLevel.jpg"));
-        // Finns bättre sätt att hämta nivåer?
+        BufferedImage stormGodBackground = ImageIO.read(new File("org/example/stormGodNewer.png"));
         backgroundArray.add(frozenBackground);
         backgroundArray.add(sunnyBackground);
         backgroundArray.add(stormyBackground);
+        backgroundArray.add(stormGodBackground);
+
 
         BufferedImage firstHouse = ImageIO.read(new File("org/example/firstHouse.png"));
         BufferedImage secondHouse = ImageIO.read(new File("org/example/secondHouse.png"));
@@ -231,6 +166,9 @@ public class myPanel extends JPanel implements KeyListener {
         altarArray.add(thirdAltar);
         altarArray.add(fourthAltar);
 
+        // genererar bana baserat på väder
+        generateLevel();
+
 
 /*          framtida implementering - ska utöka antal logs för varje 10 trä:
         //logs
@@ -245,12 +183,15 @@ public class myPanel extends JPanel implements KeyListener {
 
 
 
-        // Börjar skicka ner projektiler mot spelare
-        altarTimer.start();
+        // Altar som hela tiden blir sämre över tiden, om spelaren inte lagar det kommer en arg gud skicka ner instantdeath
+        startAltar();
+
         // Spelare
          playerImage = new ImageIcon("org/example/playerStatic.jpg").getImage();
+
          // Altar
          altarImage = altarArray.getFirst();
+
          // material att samla
          treeImage = new ImageIcon("org/example/trädSunny.png");
 
@@ -258,30 +199,15 @@ public class myPanel extends JPanel implements KeyListener {
          projectileImage = new ImageIcon(("org/example/lightningBolts.png")).getImage();
          pileImage = pileArray.getFirst();
 
-        logs = new ImageIcon("org/example/trueLogs.png").getImage();
-
-
-        // fixa så alla images är samma, inte .getimage() på jhälften, kolla skillnad
-
-
-
-        setFocusable(true);
+         setFocusable(true);
         addKeyListener(this);
 
         //TreeScoreLabel  - skapa en metod som uppdaterar
         treeScoreLabel.setForeground(Color.WHITE);
         add(treeScoreLabel);
 
-
      }
-    // gör sen till en väder baserad background
-    public void weatherBackground() {
-        Random random = new Random();
-        int randomBackground = random.nextInt(backgroundArray.size());
-        backgroundImage = new ImageIcon(backgroundArray.get(randomBackground)).getImage();
-        repaint();
 
-     }
 
 
      // ritar alla objekt i frame
@@ -290,68 +216,49 @@ public class myPanel extends JPanel implements KeyListener {
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
 
-        // nedre högra hörn - sätts här eftersom frame storlek har beräknats redan nät metod kallad
 
-        // bakgrund flrst - har skärmens höjd/bredd
+        // bakgrund först - har skärmens höjd/bredd
         graphics2D.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this); //bakgrund
-
-        // tar in rektangel i scope
-        Rectangle treeRect = null;
-
-        //for (int i = 0; i < 20; i++) {
-        g.drawImage(treeImage.getImage(), treeX, treeY, treeWidth, treeHeight, null); // mark
-        treeRect = new Rectangle(treeX, treeY, treeWidth, treeHeight);
-        //}
-        g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this); // mark
-        Rectangle pileRect = new Rectangle(pileX, pileY, pileWidth, pileHeight);
-
-        g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this); // mark
-        g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null); // mark
-        g.drawImage(altarImage, altarX, altarY, playerWidth, altarHeight, this); // mark
-        g.drawImage(logs, 0, 0, playerWidth, playerHeight, this); // mark
+        // träd
+        g.drawImage(treeImage.getImage(), treeX, treeY, treeWidth, treeHeight, null);
+        // altar
+        g.drawImage(altarImage, altarX, altarY, playerWidth, altarHeight, this);
+        // hög/hus
+        g.drawImage(pileImage, pileX, pileY, pileWidth, pileHeight, this);
+        // spelare
+        g.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight, this);
+        // projektil
+        g.drawImage(projectileImage, projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2), null);
+        //g.drawImage(logs, 0, 0, playerWidth, playerHeight, this);
 
         // Rektanglar som används för obstruction handling och intersects
         Rectangle projectileRect = new Rectangle(projectileX, projectileY, getWidth(), (int) (getHeight() * 0.2));
         Rectangle playerRect = new Rectangle(playerX, playerY, playerWidth, playerHeight);
         Rectangle altarRect = new Rectangle(altarX, altarY, playerWidth, playerHeight);
+        Rectangle treeRect = new Rectangle(treeX, treeY, treeWidth, treeHeight);
+        Rectangle pileRect = new Rectangle(pileX, pileY, pileWidth, pileHeight);
 
 
-
-        Timer treeTimer = new Timer(20000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                treeAlive = true;
-                treeImage = new ImageIcon("org/example/tree.png");
-            }
-        });
-
-        // sänker treeScore med 1 vart 4e sekund
-        Timer lessTreeTimer = new Timer(4000, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    treeScore--;
-                    treeScoreLabel.setText(String.valueOf(treeScore));
-            }
-        });
 
 
         // Obstruction handling
 
         // sänker index värdet på altar array så den återställer
-        if (playerRect.intersects(altarRect) && sacrificeAltar){ // && lägg till så spelare måste ha carryWood true
+        if (playerRect.intersects(altarRect) && sacrificeAltar){
             altarIndex = 0;
             treeScore = 0;//fixa
             treeScoreLabel.setText(String.valueOf(treeScore));
+            repaint();
         }
 
 
 
         // om huset är nästan färdigbyggt kan spelaren skyddas intuti
         if (playerRect.intersects(pileRect) && building){
+            // ökar index med 1 tills building = avstängt (inget mer trä)
                 pileIndex++;
                 treeScore--;
-                System.out.println("Building house!   " +" tree     "  + treeScore + " pile     "   + pileIndex);
+               // System.out.println("Building house!   " +" tree     "  + treeScore + " pile     "   + pileIndex);
                 // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
                 if (pileIndex < pileArray.size()){
                     pileImage = pileArray.get(pileIndex);
@@ -362,7 +269,7 @@ public class myPanel extends JPanel implements KeyListener {
             }
 
 
-
+//***********WORK IN PROGRESSS*************************
            /* buildingMethod();
             pileIndex++;
             treeScore--;*/
@@ -373,7 +280,8 @@ public class myPanel extends JPanel implements KeyListener {
             } else {
                 lessTreeTimer.stop();
             }*/
-        }
+        }//***********WORK IN PROGRESSS*************************
+
 
         // om spelaren blir träffad av attack och är skyddad
         if (playerRect.intersects(projectileRect) && !shielding) {
@@ -394,12 +302,16 @@ public class myPanel extends JPanel implements KeyListener {
                 treeScoreLabel.setText(String.valueOf(treeScore)); //byt ut till metod
 
                 // om träscore blir 5 ( max antral samlat ) dör träd i 20 sek
-                if (treeScore > 10){
+                if (treeScore > 10 && treeAlive){
                     treeAlive  = false;
-                    treeTimer.start();
+                    resetTree();
+                    treeImage = new ImageIcon((String) null);
+                    repaint();
                 }
             }
 
+
+            //************WORK IN PROGRESS***********************
              /*   if (treeScore > 10) {
                     treeImage = new ImageIcon("org/example/treeChopped.psd");
                     treeAlive = false;
@@ -417,21 +329,25 @@ public class myPanel extends JPanel implements KeyListener {
             }
         }*/
 
-        // Uppdaterar antal trä spelaren har i inventory
+     /*   // Uppdaterar antal trä spelaren har i inventory
         //kolla sen
         int treeIndex = 0;
-        // kollar modulus istället. För varje 10 trä, uppdateras tree index med 1 ((uppdaterar bilder)
+        // kollar modulus. För varje 10 trä, uppdateras tree index med 1 ((uppdaterar bilder)
         if (treeScore % 10 == 0){
              treeIndex++;
 
-            // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
+           *//* // ökar index med 1 vart 5 sekund och hämtar varje bild tills det inte finns kvar mer i listan
             if (treeIndex < logArray.size()){
                 logs = logArray.get(treeIndex);
-            }
+            }*/
+
+        //************WORK IN PROGRESS***********************
         }
-    }
+
 
     // används ej
+
+    // keyListeners för rörelser
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -439,8 +355,13 @@ public class myPanel extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+
+        // hämtar tryckt tangent
          int keyCode = e.getKeyCode();
+
+
     if(keyCode == KeyEvent.VK_D && playerSpeed > 0){
+        // adderar spelarens hastighet med position
         playerX = playerX + playerSpeed;
         playerImage = new ImageIcon("org/example/playerRunningTwo.png").getImage();
         repaint();
@@ -454,27 +375,23 @@ public class myPanel extends JPanel implements KeyListener {
 
         // bygg funktion
         if(keyCode == KeyEvent.VK_B){
-            if (treeScore > 0){
-                // medans treescore är mer än 0 kan man kalla metod
+            // om spelaren har mer än 10 trä kan de bygga
+            if (treeScore >= 10){
+                // sätter på building
                 building = true;
                 //System.out.println("building      " + "treeScore     " + treeScore + "pileindex      "+ pileIndex); //animation
-               /* treeScore--;
-                treeScoreLabel.setText(String.valueOf(treeScore));*/
+                treeScore--;
+                treeScoreLabel.setText(String.valueOf(treeScore)); // byt ut mot optimerad lösning
 
-                /*if (treeScore <= 6){
-                       shielding = true;
-                    } else {
-                        System.out.println("Not enough materials");
-                    }*/
             }
         }
+        // hugger ved
         if(keyCode == KeyEvent.VK_C){
             playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
             repaint();
             choppingWood = true;
-            /*System.out.println("Stopped building");
-            building = false;*/
 
+            // lagar altare
         }
         if(keyCode == KeyEvent.VK_R){
             playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
@@ -498,17 +415,12 @@ public class myPanel extends JPanel implements KeyListener {
             repaint();
         }
         if(keyCode == KeyEvent.VK_B){
-            /*System.out.println("Stopped building");
-            building = false;*/
-
+            building = false;
         }
         if(keyCode == KeyEvent.VK_C){
             playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
             repaint();
             choppingWood = false;
-            /*System.out.println("Stopped building");
-            building = false;*/
-
         }
         if(keyCode == KeyEvent.VK_R){
             playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
@@ -517,33 +429,105 @@ public class myPanel extends JPanel implements KeyListener {
         }
     }
 
+
+    // Backup ifall api krånglar
+    public void weatherBackground() {
+        Random random = new Random();
+        int randomBackground = random.nextInt(backgroundArray.size());
+        backgroundImage = new ImageIcon(backgroundArray.get(randomBackground)).getImage();
+        repaint();
+        System.out.println("Api invalid");
+
+    }
+    public void generateLevel(){
+
+        // Genererar en random plats i världen (random väder)
+        // framtida implementering är att denna ska kallas en gång vart 10 min och ändra väder dynamiskt
+        // för att väder ska påverka spelet mer
+        Random newRandom = new Random();
+        double randomLat = -90.0 + (90.0 - (-90.0)) * newRandom.nextDouble();
+        double randomLon = -180.0 + (180.0 - (-180.0)) * newRandom.nextDouble();
+
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        // HTTP builder
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openweathermap.org/data/2.5/weather?lat=" + randomLat + "&lon=" + randomLon + "&appid=51b63e86e7c31d25c02aa8899720bc20"))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                Gson gson = new Gson();
+                weatherAPI weatherAPI = gson.fromJson(response.body(), org.example.weatherAPI.class);
+
+                for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
+                    System.out.println("Weather is: " + weather.getMain() + " Description: " + weather.getDescription());
+                    // kanske ta temperature istället?
+
+                    if (weather.getMain().equals("Clouds")) {
+                        backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
+                        repaint();
+                    }
+
+                    if (weather.getMain().equals("Clear Sky")) {
+                        backgroundImage = new ImageIcon(backgroundArray.get(1)).getImage();
+                        repaint();
+                    }
+                    if (weather.getMain().equals("Snow")) {
+                        backgroundImage = new ImageIcon(backgroundArray.get(0)).getImage();
+                        repaint();
+                    }
+                    if (weather.getMain().equals("Rain")) {
+                        backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
+                        repaint();
+                        System.out.println("Rainy!!");
+                    } else {
+                        weatherBackground();
+                        System.out.println("Random background");
+                    }
+                    break;
+                }
+            } else {
+                System.out.println("Error - exiting loop");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void resetTree(){
+        // Timer som återställer träd
+        Timer treeTimer = new Timer(20000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeAlive = true;
+                treeImage = new ImageIcon("org/example/trädSunny.png");
+                repaint();
+            }
+        });
+    }
     //förhindrar spelaren från att röra sig vid död. Visar grav.
     public void playerDeath(){
         playerImage = new ImageIcon("org/example/gravePile.png").getImage();
         playerSpeed = 0;
     };
 
+    public void instantKill(){
+        // instant kill om spelaren inte är inuti hus
 
-
-    // instant kill om spelaren inte är inuti hus
-
-    Timer sendingProjectileTimer = new Timer(10000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        sendProjectileTimer.start();
-        }
-    });
-
-    Timer sendProjectileTimer = new Timer(40, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            projectileY = projectileY + projectileSpeed;
-            repaint();
-        }
-    });
-
-
-    // sänker altar score i intervaller - ändrar bild med
+        Timer sendProjectileTimer = new Timer(40, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                projectileY = projectileY + projectileSpeed;
+                repaint();
+            }
+        });
+    }
+    public void startAltar(){
+    }    // sänker altar score i intervaller - ändrar bild med
     Timer altarTimer = new Timer(10000, new ActionListener() {
         int altarIndex = 0;
 
@@ -557,8 +541,8 @@ public class myPanel extends JPanel implements KeyListener {
             }
             // skickar ned instant kill om index når över 3
             if (altarIndex > 3){
-                sendingProjectileTimer.start();
+                instantKill();
             }
         }
-    });
-    }
+    });}
+
