@@ -439,7 +439,7 @@ public class myPanel extends JPanel implements KeyListener {
         System.out.println("Api invalid");
 
     }
-    public void generateLevel(){
+    public void generateLevel(){   /// kolla tempratur istället så du kan ha med alla väder ( smartare )
 
         // Genererar en random plats i världen (random väder)
         // framtida implementering är att denna ska kallas en gång vart 10 min och ändra väder dynamiskt
