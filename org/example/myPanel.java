@@ -146,7 +146,7 @@ public class myPanel extends JPanel implements KeyListener {
         backgroundArray.add(stormyBackground);
         backgroundArray.add(stormGodBackground);
 
-        weatherBackground();
+        //weatherBackground();
         BufferedImage firstHouse = ImageIO.read(new File("org/example/firstHouse.png"));
         BufferedImage secondHouse = ImageIO.read(new File("org/example/secondHouse.png"));
         BufferedImage thirdHouse = ImageIO.read(new File("org/example/thirdHouse.png"));
@@ -171,8 +171,8 @@ public class myPanel extends JPanel implements KeyListener {
         altarArray.add(fourthAltar);
 
         // genererar bana baserat på väder
-        //generateLevel();
-        weatherBackground();
+        generateLevel();
+        //weatherBackground();
 
 /*          framtida implementering - ska utöka antal logs för varje 10 trä:
         //logs
@@ -399,7 +399,7 @@ public class myPanel extends JPanel implements KeyListener {
             // lagar altare
         }
         if(keyCode == KeyEvent.VK_R){
-            playerImage = new ImageIcon("org/example/praying.png").getImage();
+            playerImage = new ImageIcon("Api invalidorg/example/praying.png").getImage();
             repaint();
             sacrificeAltar = true;
             altarTest = true;
@@ -444,7 +444,7 @@ public class myPanel extends JPanel implements KeyListener {
         int randomBackground = random.nextInt(backgroundArray.size());
         backgroundImage = new ImageIcon(backgroundArray.get(randomBackground)).getImage();
         repaint();
-        System.out.println("Api invalid");
+        //System.out.println("Api invalid");
 
     }
     public void generateLevel(){   /// kolla tempratur istället så du kan ha med alla väder ( smartare )
@@ -473,28 +473,31 @@ public class myPanel extends JPanel implements KeyListener {
                 for (weatherAPI.Weather weather : weatherAPI.getWeather()) {
                     System.out.println("Weather is: " + weather.getMain() + " Description: " + weather.getDescription());
                     // kanske ta temperature istället?
-
+                    System.out.println("ALKRIK");
                     if (weather.getMain().equals("Clouds")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
-                        repaint();
-                    }
+                        System.out.println("Clouds!!");
 
-                    if (weather.getMain().equals("Clear Sky")) {
+                    }
+                    else if (weather.getMain().equals("Clear Sky")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(1)).getImage();
-                        repaint();
+                        System.out.println("Clear Sky!!");
+
                     }
-                    if (weather.getMain().equals("Snow")) {
+                    else if (weather.getMain().equals("Snow")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(0)).getImage();
-                        repaint();
+                        System.out.println("Snow!!");
+
                     }
-                    if (weather.getMain().equals("Rain")) {
+                    else if (weather.getMain().equals("Rain")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
-                        repaint();
                         System.out.println("Rainy!!");
                     } else {
-                        weatherBackground();
+                        //weatherBackground();
                         System.out.println("Random background");
                     }
+                    repaint();
+
                     break;
                 }
             } else {
