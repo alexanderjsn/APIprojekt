@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -110,6 +111,8 @@ public class myPanel extends JPanel implements KeyListener {
     boolean treeAlive = true;
     boolean sacrificeAltar = false;
 
+    boolean altarTest = false;
+
 
     // projektil koordinater
 
@@ -132,6 +135,7 @@ public class myPanel extends JPanel implements KeyListener {
     public myPanel() throws IOException {
 
 
+
         //Bakgrunder
         BufferedImage frozenBackground = ImageIO.read(new File("org/example/snowyLandscapeOne.png"));
         BufferedImage sunnyBackground = ImageIO.read(new File("org/example/sunnyLevel.jpg"));
@@ -142,7 +146,7 @@ public class myPanel extends JPanel implements KeyListener {
         backgroundArray.add(stormyBackground);
         backgroundArray.add(stormGodBackground);
 
-
+        weatherBackground();
         BufferedImage firstHouse = ImageIO.read(new File("org/example/firstHouse.png"));
         BufferedImage secondHouse = ImageIO.read(new File("org/example/secondHouse.png"));
         BufferedImage thirdHouse = ImageIO.read(new File("org/example/thirdHouse.png"));
@@ -167,8 +171,8 @@ public class myPanel extends JPanel implements KeyListener {
         altarArray.add(fourthAltar);
 
         // genererar bana baserat på väder
-        generateLevel();
-
+        //generateLevel();
+        weatherBackground();
 
 /*          framtida implementering - ska utöka antal logs för varje 10 trä:
         //logs
@@ -301,7 +305,7 @@ public class myPanel extends JPanel implements KeyListener {
                 //uppdaterar trä ikon (framtida implementering)
                 treeScoreLabel.setText(String.valueOf(treeScore)); //byt ut till metod
 
-                // om träscore blir 5 ( max antral samlat ) dör träd i 20 sek
+                // om träscore blir 10 ( max antral samlat ) dör träd i 20 sek
                 if (treeScore > 10 && treeAlive){
                     treeAlive  = false;
                     resetTree();
@@ -375,6 +379,7 @@ public class myPanel extends JPanel implements KeyListener {
 
         // bygg funktion
         if(keyCode == KeyEvent.VK_B){
+            playerImage = new ImageIcon("org/example/buildingPlayer.png").getImage();
             // om spelaren har mer än 10 trä kan de bygga
             if (treeScore >= 10){
                 // sätter på building
@@ -394,9 +399,10 @@ public class myPanel extends JPanel implements KeyListener {
             // lagar altare
         }
         if(keyCode == KeyEvent.VK_R){
-            playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
+            playerImage = new ImageIcon("org/example/praying.png").getImage();
             repaint();
             sacrificeAltar = true;
+            altarTest = true;
         }
     }
 
@@ -416,6 +422,7 @@ public class myPanel extends JPanel implements KeyListener {
         }
         if(keyCode == KeyEvent.VK_B){
             building = false;
+            playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
         }
         if(keyCode == KeyEvent.VK_C){
             playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
@@ -423,9 +430,10 @@ public class myPanel extends JPanel implements KeyListener {
             choppingWood = false;
         }
         if(keyCode == KeyEvent.VK_R){
-            playerImage = new ImageIcon("org/example/choppingWood.png").getImage();
+            playerImage = new ImageIcon("org/example/playerStandingTrue.png").getImage();
             repaint();
             sacrificeAltar = false;
+            altarTest = false;
         }
     }
 
@@ -497,6 +505,7 @@ public class myPanel extends JPanel implements KeyListener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
     public void resetTree(){
         // Timer som återställer träd
@@ -542,6 +551,9 @@ public class myPanel extends JPanel implements KeyListener {
             // skickar ned instant kill om index når över 3
             if (altarIndex > 3){
                 instantKill();
+            }
+            if(altarTest){
+                altarIndex = 0;
             }
         }
     });}
