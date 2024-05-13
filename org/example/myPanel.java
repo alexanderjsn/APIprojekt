@@ -146,6 +146,7 @@ public class myPanel extends JPanel implements KeyListener {
         backgroundArray.add(stormyBackground);
         backgroundArray.add(stormGodBackground);
 
+        weatherBackground();
         BufferedImage firstHouse = ImageIO.read(new File("org/example/firstHouse.png"));
         BufferedImage secondHouse = ImageIO.read(new File("org/example/secondHouse.png"));
         BufferedImage thirdHouse = ImageIO.read(new File("org/example/thirdHouse.png"));
@@ -171,6 +172,7 @@ public class myPanel extends JPanel implements KeyListener {
 
         // genererar bana baserat på väder
         //generateLevel();
+        weatherBackground();
 
 /*          framtida implementering - ska utöka antal logs för varje 10 trä:
         //logs
@@ -475,24 +477,23 @@ public class myPanel extends JPanel implements KeyListener {
                     if (weather.getMain().equals("Clouds")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
                         repaint();
-                        System.out.println("Cloud level!");
                     }
 
-                    if (weather.getMain().equals("clear sky")) {
+                    if (weather.getMain().equals("Clear Sky")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(1)).getImage();
                         repaint();
-                        System.out.println("clear sky level!");
-
                     }
                     if (weather.getMain().equals("Snow")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(0)).getImage();
                         repaint();
-                        System.out.println("Snow level!");
                     }
                     if (weather.getMain().equals("Rain")) {
                         backgroundImage = new ImageIcon(backgroundArray.get(2)).getImage();
                         repaint();
-                        System.out.println("Rainy level!");
+                        System.out.println("Rainy!!");
+                    } else {
+                        weatherBackground();
+                        System.out.println("Random background");
                     }
                     break;
                 }

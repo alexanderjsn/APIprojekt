@@ -7,7 +7,8 @@ import java.io.IOException;
 public class GUI extends JFrame {
     GUI() throws IOException {
         myPanel panel = new myPanel();
-        panel.generateLevel();
+        panel.weatherBackground();
+
 
         // Storlek på frame = skärmens storlek
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
