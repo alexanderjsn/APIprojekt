@@ -24,7 +24,7 @@ public class myPanel extends JPanel implements KeyListener {
     // Image variabler
     Image backgroundImage;
     Image playerImage;
-
+////
     Image projectileImage;
     Image pileImage;
     // träd
